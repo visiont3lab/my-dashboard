@@ -56,7 +56,7 @@ def plot_plotly(df,xx_string,yy_string,provincia):
         xaxis_title="data",
         yaxis_title="totale casi",
         hovermode='x',  #['x', 'y', 'closest', False]
-        plot_bgcolor = "rgb(10,10,10)",
+        plot_bgcolor = "rgb(0,255,0)",
         paper_bgcolor="rgb(0,0,0)"
     )
     return fig
@@ -97,7 +97,7 @@ app.layout = html.Div([
         html.Div(
         [   
             dcc.Markdown('''
-                # Analisi Covid 19
+                # Analisi Covid 19 (nuovo update)
                 Andremo a eseguire un esercizio sul dataset covid.
                 
                 ## Esercizio n.1 
@@ -119,7 +119,7 @@ app.layout = html.Div([
         [   
             dcc.Graph(figure=fig_reg),
         ]),
-    ],style={'backgroundColor': "rgb(255,255,255)",  "margin": "0", "padding": "0"})
+    ],style={"margin": "0", "padding": "0"})
 
 if __name__ == '__main__':
     #server.run()

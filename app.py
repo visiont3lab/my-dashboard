@@ -56,7 +56,7 @@ def plot_plotly(df,xx_string,yy_string,provincia):
         xaxis_title="data",
         yaxis_title="totale casi",
         hovermode='x',  #['x', 'y', 'closest', False]
-        plot_bgcolor = "rgb(0,255,0)",
+        plot_bgcolor = "rgb(10,10,10)",
         paper_bgcolor="rgb(0,0,0)"
     )
     return fig
@@ -73,7 +73,8 @@ def plot_regione(df,regione):
         xx = df_filt_prov["data"]
         yy = df_filt_prov["totale_casi"].values
         fig.add_trace(go.Scatter(x = xx,y = yy,name=provincia + ": totale casi" ,mode="lines+markers"))
-        fig.update_layout(title=regione, hovermode="x")
+        fig.update_layout(title=regione, hovermode="x",plot_bgcolor = "rgb(10,10,10)",
+        paper_bgcolor="rgb(0,0,0)")
     return fig
 
 df = pd.read_csv("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province.csv")
@@ -123,4 +124,4 @@ app.layout = html.Div([
 
 if __name__ == '__main__':
     #server.run()
-    app.run_server(host="0.0.0.0") #debug=True, host="0.0.0.0", port=8900)
+    app.run_server(host="0.0.0.0") #,debug=True) #host="0.0.0.0", port=8900)

@@ -98,7 +98,7 @@ app.layout = html.Div([
         html.Div(
         [   
             dcc.Markdown('''
-                # Analisi Covid 19 (nuovo update)
+                # Analisi Covid 19 (nuovo update) CHECK
                 Andremo a eseguire un esercizio sul dataset covid.
                 
                 ## Esercizio n.1 
@@ -124,4 +124,4 @@ app.layout = html.Div([
 
 if __name__ == '__main__':
     #server.run()
-    app.run_server(host="0.0.0.0") #,debug=True) #host="0.0.0.0", port=8900)
+    app.run_server(host="0.0.0.0",debug=True,port=8900) #host="0.0.0.0", port=8900)

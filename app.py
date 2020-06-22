@@ -2,126 +2,258 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 #from flask_ngrok import run_with_ngrok
+from dash.dependencies import Input, Output, State
+import dash_table
 
 import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import matplotlib.pyplot as plt
+from sklearn import datasets
+import mylib 
+import base64
+import io 
+import datetime
 
-def plot_matplotlib(df,xx_string,yy_string,provincia, style='go--',mylabel="totale_casi"):
-    with plt.style.context("dark_background"):
-        xx = df[xx_string].values
-        yy = df[yy_string].values
-        plt.figure(figsize=(18,8))
-        plt.plot()
-        plt.plot(xx,yy,style,linewidth=2,label=mylabel)
-        plt.legend()
-        plt.title(provincia + "Analisi Matplotlib")
-        plt.xlabel("data")
-        plt.ylabel("totale casi")
-        plt.savefig("assets/images/matplotlib.png", transparent=False)
-        plt.show()
+def parse_contents(contents, filename, date):
+    content_type, content_string = contents.split(',')
 
-def plot_pandas(df,xx_string,yy_string, provincia):
-    with plt.style.context("seaborn"):
-        ax = df.set_index(xx_string).plot(y=yy_string,figsize=(18,8),title=provincia +" Analisi Pandas",grid=True)
-        ax.figure.savefig("assets/images/pandas-matplotlib.png", transparent=False)
-        plt.show()
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            df = pd.read_csv(
+                io.StringIO(decoded.decode('utf-8')))
+        elif 'xlsx' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(io.BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
 
-def plot_plotly(df,xx_string,yy_string,provincia):
-    xx = df[xx_string].values.tolist()
-    yy = df[yy_string].values.tolist()
+    global X,Y
+    X = df.iloc[:,0:-1].values
+    Y = df.iloc[:,-1].values
+    return html.Div([
+        html.H5(filename),
+        html.H6(datetime.datetime.fromtimestamp(date)),
 
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
-            x = xx,
-            y = yy,
-            name= "totale_casi",
-            mode="lines+markers",
-        )
-    )
-    fig.update_layout(
-        title=dict(
-            text =provincia + " Analisi Plotly",
-            y = 0.9,
-            x = 0.5,
-            xanchor = "center",
-            yanchor = "top",
+        dash_table.DataTable(
+            data=df.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in df.columns],
+            style_as_list_view=False,
+            #style_header={"display" : "none"},
+            style_cell={
+                'textAlign': 'center',
+                'backgroundColor': 'rgb(44, 44, 44)',
+                'color': 'white',
+                'minWidth': 95,
+                'width': 95, 
+                'maxWidth': 95,
+            }, 
+            fixed_rows={'headers': True},
+            #page_size=20,
+            style_table={'height': '600px', 'overflowY': 'auto'}
         ),
-        legend=dict(
-            y = 0.9,
-            x = 0.03,
-        ),
-        xaxis_title="data",
-        yaxis_title="totale casi",
-        hovermode='x',  #['x', 'y', 'closest', False]
-        plot_bgcolor = "rgb(10,10,10)",
-        paper_bgcolor="rgb(0,0,0)"
-    )
-    return fig
-    #fig.write_image("assets/images/plotly.png")
 
-def plot_regione(df,regione):
-    df_filt_reg = df[df["denominazione_regione"]==regione]
+        html.Hr(),  # horizontal line
 
-    fig = go.Figure()
-    province = list(df_filt_reg["denominazione_provincia"].unique())
-    province.remove("In fase di definizione/aggiornamento")
-    for provincia in province:
-        df_filt_prov = df_filt_reg[df_filt_reg["denominazione_provincia"]==provincia]
-        xx = df_filt_prov["data"]
-        yy = df_filt_prov["totale_casi"].values
-        fig.add_trace(go.Scatter(x = xx,y = yy,name=provincia + ": totale casi" ,mode="lines+markers"))
-        fig.update_layout(title=regione, hovermode="x",plot_bgcolor = "rgb(10,10,10)",
-        paper_bgcolor="rgb(0,0,0)")
-    return fig
+        # For debugging, display the raw contents provided by the web browser
+        html.Div('Raw Content'),
+        html.Pre(contents[0:200] + '...', style={
+            'whiteSpace': 'pre-wrap',
+            'wordBreak': 'break-all'
+        })
+    ])
 
-df = pd.read_csv("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province.csv")
-df["data"] = pd.to_datetime(df["data"]).dt.date
-provincia = "Ravenna"
-df_filt = df[df["denominazione_provincia"]==provincia]
+processing = False
+X = None
+Y = None
+datasets_list = ["reset","load","boston", "diabetes"] #,"tips"]
+model_list = ["Linear", "Huber", "TheilSen","Ridge","Lasso","ElasticNet","KNN","DecisionTree","SVR","AdaBoost","GradientBoost","RandomForest","ExtraTrees"]
 
-#plot_pandas(df_filt,"data","totale_casi", provincia)
-#plot_matplotlib(df_filt,"data","totale_casi", provincia)
-fig = plot_plotly(df_filt,"data","totale_casi", provincia)
-fig_reg = plot_regione(df,"Emilia-Romagna")
-#fig.show()
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__) #, external_stylesheets=external_stylesheets)
 server = app.server
 #run_with_ngrok(server) 
 
 app.layout = html.Div([
+    
         html.Div(
         [   
             dcc.Markdown('''
-                # Analisi Covid 19 (nuovo update) CddsHECKK  fdsfdsfdsfsa asd
-                Andremo a eseguire un esercizio sul dataset covid.
+                # Regressione
                 
-                ## Esercizio n.1 
-                >  Plottare l'andamento nel tempo dei contagiati della propria provincia.
-                '''),  
-        ]),
-        html.Div(
-        [   
-            dcc.Graph(figure=fig),
-        ]),
-        html.Div(
-        [   
-            dcc.Markdown('''
-                ## Esercizio n.2
-                >  Plottare l'andamento nel tempo dei contagiati di tutte le pronvice dell'emilia romagna.
-                '''),  
-        ]),
-        html.Div(
-        [   
-            dcc.Graph(figure=fig_reg),
-        ]),
-    ],style={"margin": "0", "padding": "0"})
+                Questa dashboard permette di:
 
+                1. Selezionare il dataset 
+                2. Selezionare l'algoritmo migliore
+                3. Creare il modello
+                4. Testare il modello
+
+                '''),  
+        ],className="twelve columns pretty_container", style={'text-align': 'center'}),
+        
+        html.Div([
+            html.H3("1. Selezionare il dataset"),
+            dcc.Dropdown(
+                id="dropdown-datasets",
+                options=[{'label':nome, 'value':nome} for nome in datasets_list],
+                value="boston",
+                searchable=True,
+                multi=False
+            ), 
+
+            dcc.Upload(
+                id='upload-data',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files')
+                ]),
+                style={
+                    'width': '100%',
+                    'height': '60px',
+                    'lineHeight': '60px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                    'margin': '10px'
+                },
+                # Allow multiple files to be uploaded
+                multiple=True
+            ),
+            html.Div(id='uploaded-dataset'),
+            
+        ], className="twelve columns pretty_container",style={'text-align': 'center'}),
+
+        html.Div([
+            html.H3("2. Selezionare l'algoritmo migliore: Cross Validation"),
+            html.Button('Compare Models', id='process', n_clicks=0),
+            html.Div([
+                dcc.Graph(id='figure-compare-models', figure=[])
+            ],style={'padding': '20px 20px 20px 20px'}), 
+        ], className="twelve columns pretty_container",style={'text-align': 'center'}),
+    
+        html.Div([
+            html.H3("3. Creare il modello"),
+            dcc.Dropdown(
+                id="dropdown-models",
+                options=[{'label':nome, 'value':nome} for nome in model_list],
+                value="Linear",
+                searchable=True,
+                multi=False
+            ),  
+            dcc.Graph(id='fig-train'),
+            dcc.Graph(id='fig-test'),
+        ], className="twelve columns pretty_container",style={'text-align': 'center'}),
+    
+    ]
+)
+
+@app.callback(
+    [dash.dependencies.Output('fig-train', 'figure'),
+    dash.dependencies.Output('fig-test', 'figure')],
+    [dash.dependencies.Input('dropdown-models', 'value')])
+def upload_dataset(dropdown_models_value):
+    # Compare models
+    global X,Y
+    fig_train, fig_test = mylib.train(X,Y,selected=dropdown_models_value,modelName="test.sav")
+    return fig_train,fig_test
+
+@app.callback(
+    dash.dependencies.Output('figure-compare-models', 'figure'),
+    [dash.dependencies.Input('process', 'n_clicks')])
+def update_image(n_clicks):
+    fig_compare_models = []
+    if n_clicks>=1:
+        global X,Y
+        fig_compare_models = mylib.compare_models(X,Y)
+    return fig_compare_models
+
+
+@app.callback(Output('uploaded-dataset', 'children'),
+              [Input('dropdown-datasets', 'value'), Input('upload-data', 'contents')],
+              [State('upload-data', 'filename'),
+               State('upload-data', 'last_modified')])
+def upload_dataset(dropdown_datasets_value,list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None and dropdown_datasets_value=="load":
+        children = [
+            parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
+    elif dropdown_datasets_value!="load" and dropdown_datasets_value!="reset":
+        #global processing
+        #if processing==False:
+        #    processing = True
+        # https://dash.plotly.com/datatable/height
+        # https://dash.plotly.com/datatable
+        # https://scikit-learn.org/stable/modules/cross_validation.html
+        boston = datasets.load_boston()
+        df_boston = pd.DataFrame(boston.data,columns=boston.feature_names)
+        df_boston["price"] = boston.target
+
+        diabetes = datasets.load_diabetes()
+        df_diabetes = pd.DataFrame(diabetes.data,columns=diabetes.feature_names)
+        df_diabetes["desease"] = diabetes.target
+        df_diabetes = df_diabetes.round(decimals=5)
+        
+        tips = pd.read_csv('https://frenzy86.s3.eu-west-2.amazonaws.com/fav/tips.csv')
+        dict_datasets = {
+            "boston": df_boston,
+            "diabetes": df_diabetes,
+            "tips": tips
+        }    
+        df = dict_datasets[dropdown_datasets_value]#.head(10)
+        df = df.dropna()
+        
+        # Compare models
+        global X,Y
+        X = df.iloc[:,0:-1].values
+        Y = df.iloc[:,-1].values
+        #fig_compare_models = mylib.compare_models(X,Y)
+
+        children = [
+            html.Div([
+                    html.H5(dropdown_datasets_value),
+                    html.Hr(),  # horizontal line
+                    dash_table.DataTable(
+                        data=df.to_dict('records'),
+                        columns=[{'name': i, 'id': i} for i in df.columns],
+                        style_as_list_view=False,
+                        #style_header={"display" : "none"},
+                        style_cell={
+                            'textAlign': 'center',
+                            'backgroundColor': 'rgb(44, 44, 44)',
+                            'color': 'white',
+                            'minWidth': 95,
+                            'width': 95, 
+                            'maxWidth': 95,
+                        }, 
+                        fixed_rows={'headers': True},
+                        #page_size=20,
+                        style_table={'height': '600px', 'overflowY': 'auto'}
+                    ),
+                ], style={'text-align': 'center'})
+        ]
+        #    processing = False
+        return children #, fig_compare_models
+    else:
+        return []
+
+'''
+@app.callback(Output('output-data-upload', 'children'),
+              [Input('upload-data', 'contents')],
+              [State('upload-data', 'filename'),
+               State('upload-data', 'last_modified')])
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            parse_contents(c, n, d) for c, n, d in
+            zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
+'''
+        
 if __name__ == '__main__':
     #server.run()
-    app.run_server(host="0.0.0.0",debug=True,port=8900) #host="0.0.0.0", port=8900)
+    app.run_server(host="0.0.0.0",debug=False,port=8900) #host="0.0.0.0", port=8900)

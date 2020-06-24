@@ -61,7 +61,7 @@ def load_dataset(name="boston"):
     X = df.iloc[:,0:-1].values
     Y = df.iloc[:,-1].values
 
-    return X,Y
+    return X,Y,df
 
 # 1 COMPARA I MODELLI
 def compare_models(X,Y):

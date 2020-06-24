@@ -12,25 +12,45 @@ server = app.server
 
 app.layout = html.Div([
     html.Div([
+        
         html.Div([
+               
                 html.Div([
                     dcc.Markdown('''
                     Intro
                     ''')
                     ],
                     id="info",
-                    className="three columns info_container "
-                ),
+                    className="four columns info_container "),
+
+                html.Div([   
+                      html.P("Table 1")
+                      ], id='table-one-layout', className="four columns info_container "),
+
+                html.Div([   
+                      html.P("Table 2")
+                      ], id='table-two-layout', className="four columns info_container "),
+
+        ], className="row"),
+
+        
+        html.Div([
+               
                 html.Div([
-                    html.Div([   
-                        html.P("Table 1")
-                        ], id='table-one-layout', className="four columns info_container "),
-                    html.Div([   
-                        html.P("Table 2")
-                        ], id='table-two-layout', className="four columns info_container "),
+                    dcc.Markdown('''
+                    BLocco2
+                    ''')
                     ],
-                ),
-            ], className="row"),
+                    id="fdfds",
+                    className="six columns info_container "),
+
+                html.Div([   
+                      html.P("Blocco 2bis")
+                      ], id='dsfds', className="six columns info_container "),
+
+        ], className="row"),
+
+
         html.Div([
                 html.Div([
                     html.H3("Analisi Nazionale"),
@@ -51,4 +71,4 @@ app.layout = html.Div([
     ],id="main")
 
 if __name__ == '__main__':
-    app.run_server(host="0.0.0.0",debug=False) #, host="0.0.0.0", port=8800)
+    app.run_server(host="0.0.0.0",debug=True) #, host="0.0.0.0", port=8800)

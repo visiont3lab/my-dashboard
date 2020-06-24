@@ -21,11 +21,11 @@
     /*margin: 10px !important;*/
     padding: 15px;
     position: relative;
-    /*box-shadow: 2px 2px 2px lightgray;*/
+    box-shadow: 2px 2px 2px red;
 }
 
 .three_modified { width: 27.33% }
-.four {width: 33.33% !important;}
+.four {width: 31.3% !important;}
 
 @media only screen and (max-width: 1400px) {
     .one, .three .five, .six,
@@ -69,7 +69,7 @@ Select, .Select div, .Select input, .Select span {
     margin: 10px;
     padding: 15px;
     position: relative;
-    box-shadow: 2px 2px 2px lightgrey;
+    box-shadow: 2px 2px 2px red;
 }
 
 .info_container {
@@ -78,7 +78,7 @@ Select, .Select div, .Select input, .Select span {
     /*margin: 10px 10px 10px 10px !important; */
     padding: 15px;
     position: relative;
-    box-shadow: 2px 2px 2px lightgrey;
+    box-shadow: 2px 2px 2px red;
   }
 
 #react-select-2--value-item, #react-select-3--value-item {

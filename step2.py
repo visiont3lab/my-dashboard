@@ -52,6 +52,37 @@ app.layout = html.Div([
     
         html.Div([
             html.H3("3. Creare il modello"),
+            html.P("Testo "),
+            
+            dcc.Markdown('''
+                  ### 3. Creare il Modello 
+                  Testo
+                  '''),
+            dcc.RadioItems(
+                options=[
+                    {'label': 'New York City', 'value': 'NYC'},
+                    {'label': 'Montréal', 'value': 'MTL'},
+                    {'label': 'San Francisco', 'value': 'SF'}
+                ],
+                value='MTL'
+            ),  
+            dcc.Dropdown(
+                id='demo-dropdown',
+                options=[
+                    {'label': 'New York City', 'value': 'NYC'},
+                    {'label': 'Montreal', 'value': 'MTL'},
+                    {'label': 'San Francisco', 'value': 'SF'}
+                ],
+                value='NYC'
+            ),
+            dcc.Checklist(
+                options=[
+                    {'label': 'New York City', 'value': 'NYC'},
+                    {'label': 'Montréal', 'value': 'MTL'},
+                    {'label': 'San Francisco', 'value': 'SF'}
+                ],
+                value=['NYC', 'MTL']
+            ),  
             dcc.Graph(id='fig-train',figure=fig_train),
             dcc.Graph(id='fig-test',figure=fig_test),
         ], className="twelve columns pretty_container",style={'text-align': 'center'}),

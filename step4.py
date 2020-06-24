@@ -343,4 +343,4 @@ def upload_dataset(dropdown_datasets_value,list_of_contents, list_of_names, list
     return children
 
 if __name__ == '__main__':
-    app.run_server(host="0.0.0.0",debug=True) #port=8900) #host="0.0.0.0", port=8900)
+    app.run_server(host="0.0.0.0",debug=False) #port=8900) #host="0.0.0.0", port=8900)

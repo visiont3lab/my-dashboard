@@ -137,8 +137,12 @@ def compare_models(X,Y):
 
 # 2 SCELGO IL MODELLO MIGLIORE
 def train(X,Y,selected="Linear", modelName='best_model.sav'):
+    n_iter = 5
     max_val = -10000000
-    for i in range(0,20):
+    best_R2_train = 0
+    best_R2_test = 0
+    best_MSE = 0
+    for i in range(0,n_iter):
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.10,  shuffle=True) 
 
         # Scaling
@@ -181,26 +185,31 @@ def train(X,Y,selected="Linear", modelName='best_model.sav'):
         # make predictions using the model (train and test)
         Y_test_pred = pipeline.predict(X_test)
         Y_train_pred = pipeline.predict(X_train)
-        print("[INFO] MSE : {}".format(round(mean_squared_error(Y_test, Y_test_pred), 3)))
-
+        mse = round(mean_squared_error(Y_test, Y_test_pred),3)
+     
         # R2 score coefficient of determination (quanto gli input influscono sulla predizione)
         # 0 male 1 bene
         #validate(Y_train,Y_train_pred,name="Training")
         R2_train = pipeline.score(X_train, Y_train)
-        print("[Training] R2 Score: ", round(R2_train,3))
+        #print("[Training] R2 Score: ", round(R2_train,3))
 
         #validate(Y_test,Y_test_pred,name="Test")
         R2_test = pipeline.score(X_test, Y_test)
-        print("[Test] R2 Score: ", round(R2_test,3))
+        #print("[Test] R2 Score: ", round(R2_test,3))
 
         if np.abs(R2_test)>max_val:
             # Save model
+            best_MSE = mse
+            best_R2_train =  R2_train
+            best_R2_test = R2_test
             pickle.dump(pipeline, open(modelName, 'wb'))
             max_val = np.abs(R2_test)
             fig_train = plot_fig([Y_train,Y_train_pred],["Train Real", "Train Predicted"])
             fig_test = plot_fig([Y_test,Y_test_pred],["Test Real","Test Predicted"])
-            print( "Best: [Training] R2 Score: ", round(R2_train,3))
-            print("Best: [Test] R2 Score: ", round(R2_test,3))
+   
+    print("[INFO] MSE : {}".format(best_MSE))
+    print( "Best: [Training] R2 Score: ", round(best_R2_train,3))
+    print("Best: [Test] R2 Score: ", round(best_R2_test,3))
 
     return fig_train,fig_test
 
@@ -230,14 +239,14 @@ def plot_fig(Ys, names):
       hovermode = "x",
       paper_bgcolor = "rgb(0,0,0)" ,
       plot_bgcolor = "rgb(10,10,10)" , 
-      title=dict(
-          x = 0.5,
-          text = "Risultati",
-          font=dict(
-              size = 20,
-              color = "rgb(255,255,255)"
-          )
-      )
+      #title=dict(
+      #    x = 0.5,
+      #    text = "Risultati",
+      #    font=dict(
+      #        size = 20,
+      #        color = "rgb(255,255,255)"
+      #    )
+      #)
   )
   return fig
 

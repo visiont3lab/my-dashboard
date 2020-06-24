@@ -45,6 +45,7 @@ Select, .Select div, .Select input, .Select span {
     color: white;  /* Text color Input */
     background-color: #22252b;
 }
+
 .is-open>.Select-control {
     background-color: #22252b; 
     border-radius: 4px;
@@ -79,6 +80,11 @@ Select, .Select div, .Select input, .Select span {
     position: relative;
     box-shadow: 2px 2px 2px lightgrey;
   }
+
+#react-select-2--value-item, #react-select-3--value-item {
+    color: white
+}
+
 
 #checklist{
     padding: 10px;

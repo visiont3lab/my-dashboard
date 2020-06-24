@@ -1,3 +1,4 @@
+# coding=utf-8 
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
@@ -18,7 +19,6 @@ model_list = ["Linear", "Huber", "TheilSen","Ridge","Lasso","ElasticNet","KNN","
 chosen_model = "RandomForest"
 model_name = "test.sav"
 fig_train, fig_test = regressionLib.train(X,Y,selected=chosen_model,modelName=model_name)
-
 
 #external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
